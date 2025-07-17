@@ -1,2 +1,3 @@
 docling
 uvicorn
+fastapi

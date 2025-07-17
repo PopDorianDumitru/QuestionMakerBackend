@@ -2,3 +2,6 @@ docling
 uvicorn
 fastapi
 python-multipart
+pydantic 
+pydantic-settings
+httpx

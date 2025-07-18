@@ -4,7 +4,7 @@ from pathlib import Path
 import tempfile
 from docling.datamodel.base_models import InputFormat
 from services.file_converter import convert_docx, convert_pdf, convert_pptx
-
+import os
 # Create a new router for file transformation
 file_router = APIRouter()
 
@@ -19,15 +19,17 @@ async def transform_file(file: UploadFile = File(...), format: str = ""):
         contents = await file.read()
         tmp.write(contents)
         tmp_path = Path(tmp.name)
-    result = converter.convert(tmp_path)
     converted_result = None
     if format == "docx":
         converted_result = convert_docx(result)
     elif format == "pdf":
-        converted_result = convert_pdf(result)
+        converted_result = convert_pdf(tmp_path)
     elif format == "pptx":
+        result = converter.convert(tmp_path)
         converted_result = convert_pptx(result)
     else:
+        os.remove(tmp_path)
         return {"error": "Invalid format"}
+    os.remove(tmp_path)
     return {"document": converted_result}
 

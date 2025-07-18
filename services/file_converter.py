@@ -1,5 +1,6 @@
 from docling.document_converter import ConversionResult
 import json
+import pdfplumber
 
 def extract_group(element_id, element_type, groups, texts, pictures, tables):
     element = groups[element_id]
@@ -86,4 +87,8 @@ def convert_docx(result):
     pass
 
 def convert_pdf(result):
-    pass
+    with pdfplumber.open(result) as pdf:
+        pages = []
+        for page in pdf.pages:
+            pages.append(page.extract_text())
+        return pages 

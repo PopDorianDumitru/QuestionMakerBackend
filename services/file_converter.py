@@ -1,7 +1,12 @@
 from docling.document_converter import ConversionResult
 import json
-import pdfplumber
+from pypdf import PdfReader
+from docx import Document
+from docx.table import Table
+from docx.text.paragraph import Paragraph
 
+
+# PPTX PART
 def extract_group(element_id, element_type, groups, texts, pictures, tables):
     element = groups[element_id]
     children = element["children"]
@@ -83,12 +88,79 @@ def convert_pptx(result: ConversionResult):
         slides.append(slide_content)
     return slides
 
-def convert_docx(result):
-    pass
 
+# DOCX PART
+
+def is_list_paragraph(paragraph):
+    return paragraph.style.name.lower().startswith("list")
+
+def iter_block_items(parent):
+    """
+    Generează elementele (paragrafe și tabele) în ordinea în care apar în document.
+    """
+    for child in parent.element.body.iterchildren():
+        if child.tag.endswith('}p'):
+            yield Paragraph(child, parent)
+        elif child.tag.endswith('}tbl'):
+            yield Table(child, parent)
+
+
+def convert_docx(result, blocks_per_chunk=4):
+    doc = Document(result)
+    chunks = []
+    current_chunk = ""
+    block_count = 0
+
+    buffer_list = []  # temporar pentru liste continue
+
+    def flush_list():
+        nonlocal current_chunk
+        if buffer_list:
+            current_chunk += "".join(buffer_list) + "\n"
+            buffer_list.clear()
+
+    for block in iter_block_items(doc):
+        if isinstance(block, Paragraph):
+            text = block.text.strip()
+            if not text:
+                continue
+
+            if is_list_paragraph(block):
+                # Adaugă bullet manual
+                buffer_list.append(f"- {text}\n")
+                continue  # nu incrementăm block_count încă
+            else:
+                flush_list()  # dacă e sfârșit de listă, bagă-o
+
+                current_chunk += text + "\n"
+                block_count += 1
+
+        elif isinstance(block, Table):
+            flush_list()
+            for row in block.rows:
+                row_text = "\t".join(cell.text.strip() for cell in row.cells)
+                current_chunk += row_text + "\n"
+            current_chunk += "\n"
+            block_count += 1
+
+        # Dacă am ajuns la limita de blockuri
+        if block_count >= blocks_per_chunk:
+            flush_list()
+            chunks.append(current_chunk.strip())
+            current_chunk = ""
+            block_count = 0
+
+    # Ce mai rămâne
+    flush_list()
+    if current_chunk.strip():
+        chunks.append(current_chunk.strip())
+
+    return chunks
+
+
+
+# PDF PART
 def convert_pdf(result):
-    with pdfplumber.open(result) as pdf:
-        pages = []
-        for page in pdf.pages:
-            pages.append(page.extract_text())
-        return pages 
+    reader = PdfReader(result)
+    return [page.extract_text() for page in reader.pages]
+

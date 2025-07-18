@@ -21,7 +21,7 @@ async def transform_file(file: UploadFile = File(...), format: str = ""):
         tmp_path = Path(tmp.name)
     converted_result = None
     if format == "docx":
-        converted_result = convert_docx(result)
+        converted_result = convert_docx(tmp_path)
     elif format == "pdf":
         converted_result = convert_pdf(tmp_path)
     elif format == "pptx":

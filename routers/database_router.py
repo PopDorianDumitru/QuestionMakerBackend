@@ -11,7 +11,7 @@ def get_service() -> DatabaseService:
 @database_router.post("/login")
 async def add_user(authorization: Optional[str] = Header(None), user_data: dict = {}):
     message = await get_service().login(user_data, authorization)
-    return {"message": message}
+    return {"user": message}
 
 @database_router.put("/update_user/{user_id}")
 async def update_user(user_data: dict = {}, data: dict = {}):

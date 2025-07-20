@@ -3,6 +3,9 @@ from database.database_handler import DatabaseHandler
 from services.database_service import DatabaseService
 from database.firebase_handler import handler
 from utils.firebase_auth import verify_firebase_token
+from settings import settings
+from services.stripe_service import create_customer
+
 
 class FirebaseService(DatabaseService):
     def __init__(self, db_handler: DatabaseHandler) -> None:
@@ -29,6 +32,9 @@ class FirebaseService(DatabaseService):
         user = verify_firebase_token(token)
         exists = await self.get_user(user["uid"])
         if exists == {}:
-            await self.add_user(user)
-        return user
+            exists = await self.add_user(user)
+        if "stripeCustomerId" not in exists:
+            customer = create_customer(user)
+            await self.update_user(user["uid"], {"stripeCustomerId": customer.id})
+        return exists
 service = FirebaseService(handler)

@@ -57,3 +57,5 @@ dmypy.json
 
 # macOS
 .DS_Store
+
+firebase-credentials.json

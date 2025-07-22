@@ -7,6 +7,7 @@ class Settings(BaseSettings):
     openai_url: str
     stripe_key: str
     subscription_id: str
+    webhook_secret: str
 
     class Config:
         env_file = ".env"

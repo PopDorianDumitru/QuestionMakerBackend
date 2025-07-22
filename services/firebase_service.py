@@ -4,8 +4,8 @@ from services.database_service import DatabaseService
 from database.firebase_handler import handler
 from utils.firebase_auth import verify_firebase_token
 from settings import settings
-from services.stripe_service import create_customer
-
+from services.stripe_service import create_checkout_session, create_customer, is_user_subscribed, unsubscribe
+from fastapi import HTTPException
 
 class FirebaseService(DatabaseService):
     def __init__(self, db_handler: DatabaseHandler) -> None:
@@ -27,7 +27,7 @@ class FirebaseService(DatabaseService):
         bearer_token = bearer_token.replace("Bearer ", "")
         return bearer_token
 
-    async def login(self, user_data: Dict[str, Any], authorization: str) -> str:
+    async def login(self, authorization: str) -> str:
         token = self.get_token(authorization)
         user = verify_firebase_token(token)
         exists = await self.get_user(user["uid"])
@@ -37,4 +37,35 @@ class FirebaseService(DatabaseService):
             customer = create_customer(user)
             await self.update_user(user["uid"], {"stripeCustomerId": customer.id})
         return exists
+    
+    async def subscribe(self, authorization: str) -> None:
+        token = self.get_token(authorization)
+        user = verify_firebase_token(token)
+        user = await self.get_user(user["uid"])
+        stripe_customer_id = user["stripeCustomerId"]
+        if not stripe_customer_id:
+            raise HTTPException(status_code=400, detail="Customer not found")      
+        if is_user_subscribed(stripe_customer_id):  
+            raise HTTPException(status_code=400, detail="User already subscribed")
+        try:
+            checkout_session = create_checkout_session(stripe_customer_id)
+            return {"url": checkout_session.url}
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=str(e))
+        
+    async def unsubscribe(self, authorization: str) -> None:
+        token = self.get_token(authorization)
+        user = verify_firebase_token(token)
+        user = await self.get_user(user["uid"])
+        stripe_customer_id = user["stripeCustomerId"]
+        if not stripe_customer_id:
+            raise HTTPException(status_code=400, detail="Customer not found")
+        if not is_user_subscribed(stripe_customer_id):
+            raise HTTPException(status_code=400, detail="User not subscribed")
+        try:
+            unsubscribe(stripe_customer_id)
+            return {"message": "User unsubscribed successfully"}
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=str(e))
+
 service = FirebaseService(handler)

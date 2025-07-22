@@ -5,6 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from settings import settings
 from routers.openai_router import openai_router
 from routers.database_router import database_router
+from routers.stripe_router import stripe_router
 
 app = FastAPI()
 
@@ -26,3 +27,4 @@ async def root():
 app.include_router(file_router)
 app.include_router(openai_router)
 app.include_router(database_router)
+app.include_router(stripe_router)

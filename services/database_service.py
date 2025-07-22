@@ -7,7 +7,13 @@ class DatabaseService:
     async def add_user(self, user_data: Dict[str, Any]) -> str:
         pass
 
-    async def login(self, user_data: Dict[str, Any], authorization: str) -> str:
+    async def login(self, authorization: str) -> str:
+        pass
+
+    async def subscribe(self, authorization: str) -> None:
+        pass
+
+    async def unsubscribe(self, authorization: str) -> None:
         pass
 
     async def get_user(self, user_id: str) -> Dict[str, Any]:

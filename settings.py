@@ -8,6 +8,7 @@ class Settings(BaseSettings):
     stripe_key: str
     subscription_id: str
     webhook_secret: str
+    firebase_credentials: str
 
     class Config:
         env_file = ".env"

@@ -73,10 +73,10 @@ class FirebaseService(DatabaseService):
             raise HTTPException(status_code=401, detail="Unauthorized")
         token = self.get_token(authorization)
         user = verify_firebase_token(token)
-        user = await self.get_user(user["uid"])
-        if user["payingUser"]:
+        firestore_user = await self.get_user(user["uid"])
+        if firestore_user["payingUser"]:
             return
-        if not user["usedFreeTier"]:
+        if not firestore_user["usedFreeTier"]:
             await self.update_user(user["uid"], {"usedFreeTier": True})
             return
         raise HTTPException(status_code=400, detail="Free tier limit reached")

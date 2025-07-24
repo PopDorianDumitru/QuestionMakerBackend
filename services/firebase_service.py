@@ -36,6 +36,8 @@ class FirebaseService(DatabaseService):
         if "stripeCustomerId" not in exists:
             customer = create_customer(user)
             await self.update_user(user["uid"], {"stripeCustomerId": customer.id})
+        if "freeTrial" not in exists:
+            await self.update_user(user["uid"], {"freeTrial": False})
         return exists
     
     async def subscribe(self, authorization: str) -> None:
@@ -68,6 +70,11 @@ class FirebaseService(DatabaseService):
         except Exception as e:
             raise HTTPException(status_code=500, detail=str(e))
         
+    async def turnOffFreeTrial(self, authorization: str) -> None:
+        token = self.get_token(authorization)
+        user = verify_firebase_token(token)
+        await self.update_user(user["uid"], {"freeTrial": False})
+            
     async def canCreateQuiz(self, authorization: str) -> bool:
         if authorization == None:
             raise HTTPException(status_code=401, detail="Unauthorized")
@@ -77,7 +84,9 @@ class FirebaseService(DatabaseService):
         if firestore_user["payingUser"]:
             return
         if not firestore_user["usedFreeTier"]:
-            await self.update_user(user["uid"], {"usedFreeTier": True})
+            await self.update_user(user["uid"], {"usedFreeTier": True, "freeTrial": True})
+            return
+        if firestore_user["freeTrial"]:
             return
         raise HTTPException(status_code=400, detail="Free tier limit reached")
 

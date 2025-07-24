@@ -11,6 +11,7 @@ class User:
     payingUser: bool
     usedFreeTier: bool    
     username: str
+    freeTrial: bool
 
 class FirestoreHandler(DatabaseHandler):
     def __init__(self, db: firestore.Client):
@@ -18,7 +19,7 @@ class FirestoreHandler(DatabaseHandler):
 
     async def add_user(self, user_data: Dict[str, Any]) -> str:
         doc_ref = self.db.collection("users").document(user_data["uid"])
-        user = User(user_data["email"], False, False, user_data["name"])
+        user = User(user_data["email"], False, False, user_data["name"], False)
         doc_ref.set(asdict(user))
         return doc_ref.id
 

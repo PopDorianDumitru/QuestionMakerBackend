@@ -74,7 +74,7 @@ class FirebaseService(DatabaseService):
         token = self.get_token(authorization)
         user = verify_firebase_token(token)
         user = await self.get_user(user["uid"])
-        if user["PayingUser"]:
+        if user["payingUser"]:
             return
         if not user["usedFreeTier"]:
             await self.update_user(user["uid"], {"usedFreeTier": True})

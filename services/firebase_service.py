@@ -69,6 +69,8 @@ class FirebaseService(DatabaseService):
             raise HTTPException(status_code=500, detail=str(e))
         
     async def canCreateQuiz(self, authorization: str) -> bool:
+        if authorization == None:
+            raise HTTPException(status_code=401, detail="Unauthorized")
         token = self.get_token(authorization)
         user = verify_firebase_token(token)
         user = await self.get_user(user["uid"])

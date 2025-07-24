@@ -27,8 +27,8 @@ def create_checkout_session(customer_id: str) -> str:
             "quantity": 1,
         }],
         mode="subscription",
-        success_url= settings.frontend_origins + "/subscribe/success",
-        cancel_url= settings.frontend_origins + "/subscribe/cancel",
+        success_url= settings.frontend_origins + "subscribe/success",
+        cancel_url= settings.frontend_origins + "subscribe/cancel",
     )
     return checkout_session
 

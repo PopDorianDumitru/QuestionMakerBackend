@@ -14,7 +14,7 @@ origins = settings.frontend_origins
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # whitelist your frontend origins explicitly
+    allow_origins=["https://mri-ai-tool.click", "http://localhost:5173"],
     allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],  # only needed methods
     allow_headers=["Authorization", "Content-Type", "Accept"],  # restrict to needed headers
 )

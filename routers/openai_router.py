@@ -12,7 +12,7 @@ class TopicRequest(BaseModel):
 
 @openai_router.post("/generate_question")
 async def generate_question(payload: TopicRequest, authorization: Optional[str] = Header(None)):
-    service.canCreateQuiz(authorization)
+    await service.canCreateQuiz(authorization)
     url = settings.openai_url
     headers = {
         "Content-Type": "application/json",

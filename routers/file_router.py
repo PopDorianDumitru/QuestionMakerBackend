@@ -16,7 +16,7 @@ converter = DocumentConverter(
 
 @file_router.post("/transform/{format}")
 async def transform_file(file: UploadFile = File(...), format: str = "", authorization: Optional[str] = Header(None)):
-    service.canCreateQuiz(authorization)
+    await service.canCreateQuiz(authorization)
     
     suffix = Path(file.filename).suffix
     with tempfile.NamedTemporaryFile(delete=False, suffix=suffix) as tmp:

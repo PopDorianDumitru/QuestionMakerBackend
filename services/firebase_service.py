@@ -67,5 +67,16 @@ class FirebaseService(DatabaseService):
             return {"message": "User unsubscribed successfully"}
         except Exception as e:
             raise HTTPException(status_code=500, detail=str(e))
+        
+    async def canCreateQuiz(self, authorization: str) -> bool:
+        token = self.get_token(authorization)
+        user = verify_firebase_token(token)
+        user = await self.get_user(user["uid"])
+        if user["isPayingUser"]:
+            return
+        if not user["usedFreeTier"]:
+            await self.update_user(user["uid"], {"usedFreeTier": True})
+            return
+        raise HTTPException(status_code=400, detail="Free tier limit reached")
 
 service = FirebaseService(handler)

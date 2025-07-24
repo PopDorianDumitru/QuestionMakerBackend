@@ -1,7 +1,9 @@
-from fastapi import APIRouter
+from typing import Optional
+from fastapi import APIRouter, Header
 import httpx
 from pydantic import BaseModel
 from settings import settings
+from services.firebase_service import service
 # Create a new router for file transformation
 openai_router = APIRouter()
 
@@ -9,7 +11,8 @@ class TopicRequest(BaseModel):
     topic: str
 
 @openai_router.post("/generate_question")
-async def generate_question(payload: TopicRequest):
+async def generate_question(payload: TopicRequest, authorization: Optional[str] = Header(None)):
+    service.canCreateQuiz(authorization)
     url = settings.openai_url
     headers = {
         "Content-Type": "application/json",

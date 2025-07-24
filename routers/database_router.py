@@ -13,15 +13,15 @@ async def add_user(authorization: Optional[str] = Header(None)):
     message = await get_service().login(authorization)
     return {"user": message}
 
-@database_router.put("/update_user/{user_id}")
-async def update_user(user_data: dict = {}, data: dict = {}):
-    await get_service().update_user(user_data, data)
-    return {"message": "User updated successfully"}
+# @database_router.put("/update_user/{user_id}")
+# async def update_user(user_data: dict = {}, data: dict = {}):
+#     await get_service().update_user(user_data, data)
+#     return {"message": "User updated successfully"}
 
-@database_router.delete("/delete_user/{user_id}")
-async def delete_user(user_data: dict = {}):
-    await get_service().delete_user(user_data)
-    return {"message": "User deleted successfully"}
+# @database_router.delete("/delete_user/{user_id}")
+# async def delete_user(user_data: dict = {}):
+#     await get_service().delete_user(user_data)
+#     return {"message": "User deleted successfully"}
 
 @database_router.post("/subscribe")
 async def subscribe(authorization: Optional[str] = Header(None)):

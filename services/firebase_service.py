@@ -46,7 +46,7 @@ class FirebaseService(DatabaseService):
         user = await self.get_user(user["uid"])
         stripe_customer_id = user["stripeCustomerId"]
         if not stripe_customer_id:
-            raise HTTPException(status_code=400, detail="Customer not found")      
+            raise HTTPException(status_code=404, detail="Customer not found")      
         if is_user_subscribed(stripe_customer_id):  
             raise HTTPException(status_code=400, detail="User already subscribed")
         try:
@@ -63,7 +63,7 @@ class FirebaseService(DatabaseService):
         if not stripe_customer_id:
             raise HTTPException(status_code=400, detail="Customer not found")
         if not is_user_subscribed(stripe_customer_id):
-            raise HTTPException(status_code=400, detail="User not subscribed")
+            raise HTTPException(status_code=404, detail="User not subscribed")
         try:
             unsubscribe(stripe_customer_id)
             return {"message": "User unsubscribed successfully"}
@@ -74,7 +74,7 @@ class FirebaseService(DatabaseService):
         token = self.get_token(authorization)
         user = verify_firebase_token(token)
         await self.update_user(user["uid"], {"freeTrial": False})
-            
+
     async def canCreateQuiz(self, authorization: str) -> bool:
         if authorization == None:
             raise HTTPException(status_code=401, detail="Unauthorized")

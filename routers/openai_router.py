@@ -45,7 +45,7 @@ async def generate_question(payload: TopicRequest, authorization: Optional[str] 
             "input": payload.topic,
             "instructions": custom_prompt + "\n" + payload.instructions
         }
-    async with httpx.AsyncClient() as client:
+    async with httpx.AsyncClient(timeout=300.0) as client:
             response = await client.post(url=url, json=data, headers=headers)
             print(response)
             return response.json()

@@ -33,7 +33,7 @@ async def generate_question(payload: TopicRequest, authorization: Optional[str] 
     }
     if(payload.instructions == ""):
         data = {
-            "model": "gpt-4.1-nano-2025-04-14",
+            "model": "gpt-5-nano-2025-08-07",
             "prompt": {
                 "id": settings.prompt_id,
             },
@@ -41,7 +41,7 @@ async def generate_question(payload: TopicRequest, authorization: Optional[str] 
         }
     else:
         data = {
-            "model": "gpt-4.1-nano-2025-04-14",
+            "model": "gpt-5-nano-2025-08-07",
             "input": payload.topic,
             "instructions": custom_prompt + "\n" + payload.instructions
         }
